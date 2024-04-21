@@ -42,12 +42,6 @@ app.use("/callback", (req, res) => {
 }
 );
 
-fetch('https://api.twitter.com/2/users/by/username/HranttV', {
-    headers: {
-        'Authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAAB%2BmtQEAAAAAGuf73SGTi5aaOHLNjxGLsis5%2FWo%3DLO60QMVYjuVJaFQob80vZGU7VlgfoHLpfWiATKXjegBimPlKxJ'
-    }
-})
-
 
 .then(response => response.json())
 .then(data => console.log(data))
