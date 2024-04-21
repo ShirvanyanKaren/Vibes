@@ -111,7 +111,15 @@
     left:0;
     z-index: 0 !important;
   }
+  .sign-text{
+    color: #FFFFFF;
+    text-decoration: none;
+  }
 
+.bubbles-style{
+  animation: bounceInLeft 1s;
+  animation-duration: 2s;
+}
 
   /* 
   @media screen and (max-width: 1000px) {

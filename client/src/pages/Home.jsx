@@ -11,8 +11,8 @@ const Home = () => {
             </div>
           <h1 style={{fontFamily:"TwitterChirpExtendedHeavy", fontSize:"50px"}}>Seek <br/> Self-Discovery</h1>
           <button>
-            <div>
-              Sign In
+            <div >
+              <a className="sign-text" href="http://127.0.0.1:5000/">Sign In</a>
             </div>
           </button>
       </div>
