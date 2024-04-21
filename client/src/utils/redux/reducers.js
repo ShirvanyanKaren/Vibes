@@ -4,7 +4,6 @@ export const initialState = {
     LOGGED_IN: false,
     USER: null,
     TOKEN: null,
-    SAVED_DATE: null
 }
 
 export const reducer = (state = initialState, action) => { 
@@ -33,5 +32,7 @@ export const reducer = (state = initialState, action) => {
                 ...state,
                 TOKEN: token
             }
+        default:
+            return state;
         }
 }
