@@ -22,12 +22,11 @@ const Login = () => {
 
     const handleSignIn = async (e) => {
         e.preventDefault();
-            const userRegex = /^[a-zA-Z0-9]{3,30}$/;
-            if (!userRegex.test(username)) {
+        if (username === "") {
                 setErrorMsg("Invalid username");
                 return;
             } else {    
-            localStorage.setItem("token", email);  
+            localStorage.setItem("token", username);  
             window.location.assign("http://127.0.0.1:5000/");
         }
         

@@ -22,23 +22,18 @@ app.use(cors());
 app.use(router);
 
 app.use("/callback", (req, res) => { 
-  console.log("callback route");
-  console.log(req.query);
-  const { state, code, userName } = req.query;
-
-  console.log("state:", state);
-
-  console.log("code:", code);
-
-  console.log("userName:", userName);
-
-  const token = jwt.sign({ data: { userName } }, process.env.JWT_SECRET, {
-    expiresIn: process.env.EXPIRATION,
-
-  });
-  
-
-  res.redirect("/");
+  try {
+    console.log("callback route");
+    console.log(req.query);
+    const { state, code, userName } = req.query;
+    const token = jwt.sign({ userName }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+    res.redirect("/evolutions");
+  }
+  catch (err) {
+    console.error(err);
+  }
 }
 );
 
