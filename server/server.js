@@ -27,7 +27,7 @@ app.get("/callback", (req,res)=>{
   // var token = jwt.sign(req.query, process.env.CONSUMER_SECRET)
   // console.log(token)
   
-  res.redirect(`http://localhost:5000/user_token?verifier=${req.query.oauth_verifier}`)
+  res.redirect('http://localhost:3000/evolutions')
 })
 
 if (process.env.NODE_ENV === "production") {

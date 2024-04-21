@@ -38,8 +38,8 @@ const Evolutions = (props) => {
       tempData[id]["name"] = userPage[i].name;
       tempData[id]["value"] =
         userPage[i].count / 14
-          ? userPage[i].count / 12 > 0.15
-          : userPage[i].count / 12;
+          ? userPage[i].count = userPage[i].count / 12 > 0.15
+          : userPage[i].count = userPage[i].count / 12;
 
       console.log("tempData", tempData);
     }
@@ -61,6 +61,7 @@ const Evolutions = (props) => {
       setGronkResponse(response);
       setGronkLoaded(true);
       console.log("gronk response", gronkResponse);
+      console.log
 
     };
 
@@ -92,7 +93,7 @@ const Evolutions = (props) => {
                   <em
                     style={{ color: "white" }}
                     className="tool-tip"
-                    dangerouslySetInnerHTML={{ __html: `` }}
+                    dangerouslySetInnerHTML={{ __html: `Number of Posts: ${data.count}` }}
                   />
                 </React.Fragment>
               }
@@ -106,7 +107,7 @@ const Evolutions = (props) => {
       })
     );
     setIsLoaded(true);
-  }, [isLoaded]);
+  }, [ isLoaded]);
 
   var colors = [
     "#FF00FF", // Neon Magenta
@@ -160,11 +161,6 @@ const Evolutions = (props) => {
               <img src={search} />
               <span>Search</span>
             </div>
-            <div className="tweet-query-container">
-              <div className="tool-bar-heading">
-                <h2>Relevant Posts</h2>
-              </div>
-            </div>
             <div className="grok-response-container">
             <div className="tool-bar-heading text-center">
                 <h2>Get Insights</h2>
@@ -173,11 +169,11 @@ const Evolutions = (props) => {
                     {/* Text class for smaller text size and paragraph formatting */}
                     <p className=" fs-6 mt-4">{gronkResponse.summary}</p>
                   </div>
-                ) : null}
+                ) : <></>}
                 {/* Input field with Bootstrap classes for styling */}
                 <input className="form-control grok-input"
-                placeholder="Type here..." />
-              </div>
+                placeholder="Talk to grok here..." />  
+              </div> 
             </div>
           </div>
         </div>
