@@ -39,7 +39,7 @@ const ParticleSystem = () => {
             // Clean up Three.js objects
             scene.remove(group);
             group = null;
-            controls.dispose();
+            //controls.dispose();
             renderer.dispose();
         };
     }, []);

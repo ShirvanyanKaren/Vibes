@@ -5,7 +5,7 @@ const Home = () => {
     <>
     <div className="intro-wrapper">
       <div className="intro">
-          <div style={{dispaly:"flex"}}>
+          <div>
             <img  src={logo} alt="" height={50}/>
             <h2>Evolutions</h2>
             </div>
