@@ -226,3 +226,29 @@ font-weight: 400;
   justify-content: center;
   align-items: center;
 }
+
+.bubble-text{
+  font-size: 24px;
+  font-weight: 800;
+  color: white;
+  text-align: center;
+  margin-top: 20px;
+  &:hover{
+    cursor: pointer;
+    transform: scale(1.08);
+  }
+}
+
+.grok-input{
+  margin-top: 10%;
+  bottom: 0;
+}
+
+.tool-bar-heading {
+  display: flex;           
+  flex-direction: column;   
+  justify-content: space-between; 
+  align-items: center;    
+  height: 100%;   
+  overflow: fixed;          
+}
