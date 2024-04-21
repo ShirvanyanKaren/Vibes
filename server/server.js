@@ -43,9 +43,6 @@ app.use("/callback", (req, res) => {
 );
 
 
-.then(response => response.json())
-.then(data => console.log(data))
-.catch(error => console.error('Error:', error));
 
 if (process.env.NODE_ENV === "production") {
   app.use("/", express.static(path.join(__dirname, "../client/dist")));

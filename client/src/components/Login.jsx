@@ -9,7 +9,7 @@ import logo from "/assets/x-twitter.svg";
 
 
 const Login = () => {
-    const [email, setEmail] = useState("");
+    const [username, setUsernam] = useState("");
     const [password, setPassword] = useState("");
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -21,15 +21,16 @@ const Login = () => {
 
 
     const handleSignIn = async (e) => {
-        e.preventDefault();  
-        const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-        if (emailRegex.test(email)) {
+        e.preventDefault();
+            const userRegex = /^[a-zA-Z0-9]{3,30}$/;
+            if (!userRegex.test(username)) {
+                setErrorMsg("Invalid username");
+                return;
+            } else {    
             localStorage.setItem("token", email);  
             window.location.assign("http://127.0.0.1:5000/");
-        } else {
-            console.log("Invalid email:", email);
-            setErrorMsg("Please enter a valid email address.");
         }
+        
     };
 
     
@@ -46,13 +47,13 @@ const Login = () => {
 
                 <form onSubmit={handleSignIn}> 
                     <div className="input-container mb-3">
-                        <label className="ms-1">Email:</label>
+                        <label className="ms-1">username:</label>
                         <input
-                            type="email"
-                            placeholder="Email"
+                            type="username"
+                            placeholder="username"
                             className="form-control mt-2"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
+                            value={username}
+                            onChange={(e) => setUsernam(e.target.value)}
                         />
                         <label className="ms-1 mt-2 text-danger">{errorMsg}</label>
 
