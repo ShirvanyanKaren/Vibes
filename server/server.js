@@ -5,6 +5,7 @@ var jwt = require('jsonwebtoken');
 const mongoose = require("mongoose");
 const { authMiddleware } = require("./utils/auth");
 const path = require("path");
+const axios = require("axios")
 
 const PORT = process.env.PORT || 8080;
 
@@ -22,12 +23,14 @@ app.use(cors());
 app.use(router);
 console.log("one")
 
+
+
 app.get("/callback", (req,res)=>{
   console.log(req.query)
   // var token = jwt.sign(req.query, process.env.CONSUMER_SECRET)
   // console.log(token)
   
-  res.redirect('http://localhost:3000/evolutions')
+  res.redirect(`http://localhost:8000/user_token?verifier=${req.query.oauth_verifier}`)
 })
 
 if (process.env.NODE_ENV === "production") {

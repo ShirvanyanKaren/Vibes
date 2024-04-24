@@ -5,109 +5,28 @@ import "react-bubble-ui/dist/index.css";
 import BubbleUI from "react-bubble-ui";
 import { json, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getUserPage, askGronk } from "../utils/helpers/functions";
-import jwtDecode from "jwt-decode";
-import HtmlTooltip from "../components/ToolTip";
-import ToolTip from "../components/ToolTip";
-import Typography from "@mui/material/Typography";
+import Cookies from "js-cookie"
+import logo from "/assets/x-logo.svg"
+import axios from 'axios'
+import { askGronk } from "../utils/helpers/functions";
+
+
+
 
 
 
 const Evolutions = (props) => {
+  const [evolutions, setEvolutions] = useState({})
+  const [evolutionLoading, setEvolutionLoading] = useState(true)
+
+
+
   const [searchParams] = useSearchParams();
+  if(searchParams.get('token') != null){ 
+    document.cookie=`token=${searchParams.get('token')}`
+  }
+  
 
-  const [userPage, setUserPage] = useState({});
-  const [baseData, setData] = useState({});
-  const [children, setChildren] = useState([]);
-  const [bubbleStyle, setBubbleStyle] = useState({});
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [gronkLoaded, setGronkLoaded] = useState(false);
-  const [gronkResponse, setGronkResponse] = useState({});
-
-  useEffect(() => {
-    let token = localStorage.getItem("token");
-    getUserPage(token).then((data) => {
-      setUserPage(data);
-    });
-    console.log("user page", userPage);
-
-    let tempData = {};
-    for (let i = 0; i < userPage.length; i++) {
-      let id = userPage[i].id.toString();
-      tempData[id] = {};
-      tempData[id]["name"] = userPage[i].name;
-      tempData[id]["value"] =
-        userPage[i].count / 14
-          ? userPage[i].count = userPage[i].count / 12 > 0.15
-          : userPage[i].count = userPage[i].count / 12;
-
-      console.log("tempData", tempData);
-    }
-    setData(tempData);
-
-    const getGronkData = async (data) => {
-      setGronkLoaded(false);
-
-      console.log("data", data);
-
-      let gronkResponseData = {
-        keyword: data,
-      };
-      console.log(typeof gronkResponseData);
-      data = JSON.stringify(gronkResponseData);
-      console.log("data", gronkResponseData, typeof gronkResponseData);
-      let response = await askGronk(data);
-      console.log("response", response);
-      setGronkResponse(response);
-      setGronkLoaded(true);
-      console.log("gronk response", gronkResponse);
-      console.log
-
-    };
-
-
-
-
-    setChildren(
-      Object.values(tempData).map((data, i) => {
-        const bubbleStyle = {
-          fontSize: 50 * data.value,
-        };
-        return (
-          <div className="bubble-entry" style={bubbleStyle}>
-            <HtmlTooltip
-              props={data}
-              title={
-                <React.Fragment>
-                  <Typography
-                    // style={{ color: 'white', fontSize: '24px' }}
-                    color="inherit"
-                  >
-                    <a 
-                    onClick={() => getGronkData(data.name)}
-                    className="fw-italic fs-12 bubble-text text-light text-decoration-none">{`Ask Grok To Get Insights on ${data.name}?`}
-            
-                    </a>
-                  </Typography>
-
-                  <em
-                    style={{ color: "white" }}
-                    className="tool-tip"
-                    dangerouslySetInnerHTML={{ __html: `Number of Posts: ${data.count}` }}
-                  />
-                </React.Fragment>
-              }
-            >
-              <li className="list-group-item">
-                <p className="bubble-text">{data.name}</p>
-              </li>
-            </HtmlTooltip>
-          </div>
-        );
-      })
-    );
-    setIsLoaded(true);
-  }, [ isLoaded]);
 
   var colors = [
     "#FF00FF", // Neon Magenta
@@ -126,60 +45,175 @@ const Evolutions = (props) => {
     "#FF6347", // Neon Tomato
     "#40E0D0", // Neon Turquoise
   ];
-
+  
+  const [gronkSummary, setSummary] = useState("")
+  
   const options = {
-    size: 180,
-    minSize: 20,
-    gutter: 8,
-    provideProps: true,
-    numCols: 5,
-    fringeWidth: 160,
-    yRadius: 130,
-    xRadius: 220,
-    cornerRadius: 50,
-    showGuides: false,
-    compact: true,
-    gravitation: 5,
-  };
+		size: 180,
+		minSize: 20,
+		gutter: 8,
+		provideProps: true,
+		numCols: 5,
+		fringeWidth: 160,
+		yRadius: 130,
+		xRadius: 220,
+		cornerRadius: 50,
+		showGuides: false,
+		compact: true,
+		gravitation: 5
+	}
 
-  return (
-    <>
-      <div className="evolutions-page-wrapper">
-        <div className="spacer"></div>
+  const handleCategory = async(topic) =>{
+      console.log(topic.name)
+      let response =  await askGronk({keyword: topic.name})
+      setSummary(response.summary)
+  }
+
+  useEffect(()=>{
+
+      fetch("http://localhost:8000/fetch_tweets",{
+        method:"POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(
+          {
+            "token": Cookies.get('token')
+          }
+          )}
+        )
+        .then(response => response.json())
+        .then(data => {
+
+
+          setEvolutionLoading(false)
+          setEvolutions(data)
+          console.log(data)
+        })
+        .catch(error => console.error(error));
+
+  }, [])
+
+
+
+
+    return (
+      <>
+       <div className="evolutions-page-wrapper">
+        <div className="spacer">
+          <div className="navigation">
+              <div className="nav-section">
+                <img src={logo}/>
+              </div>
+          </div>
+          
+        </div>
         <div className="evolutions-wrapper">
           <div className="evolutions">
             <div className="evolutions-header">
               <img id="x-arrow" src={arrow} />
               <span id="header-title">Evolutions</span>
             </div>
-            <BubbleUI options={options} className="bubbleUI">
-              {isLoaded ? children : <></>}
-            </BubbleUI>
-          </div>
-          <div className="tool-bar-wrapper">
-            <div className="search">
-              <img src={search} />
-              <span>Search</span>
+            {evolutionLoading ? 
+            <div>Loading</div>
+              :
+              <BubbleUI options={options} className="bubbleUI">
+
+                {evolutions.domains.map((data, i) => {
+                  const bubbleStyle = {
+                    cursor: "pointer",
+                    fontWeight: (data.proportion * 100) < 5 ? "400" : `${400 + (800 * (data.proportion))}px`,
+                    fontSize: (data.proportion * 100) < 5 ? "20px" : `${20 + (50 * (data.proportion))}px`,
+                    height: `${(500 * (data.proportion))}px`,
+                    width:  `${(500 *(data.proportion))}px`,
+                    color:"white",
+                    backgroundColor:"black",
+                    border:"none",
+                    zIndex:90,
+                  };
+                        return <div className="bubble-entry" style={bubbleStyle} onClick={()=>{handleCategory(data.entities[0])}}>{data.name}</div>;
+                  })}
+              </BubbleUI>
+          }
+          
             </div>
-            <div className="grok-response-container">
-            <div className="tool-bar-heading text-center">
-                <h2>Get Insights</h2>
-                {gronkLoaded ? (
-                  <div>
-                    {/* Text class for smaller text size and paragraph formatting */}
-                    <p className=" fs-6 mt-4">{gronkResponse.summary}</p>
-                  </div>
-                ) : <></>}
-                {/* Input field with Bootstrap classes for styling */}
-                <input className="form-control grok-input"
-                placeholder="Talk to grok here..." />  
-              </div> 
+            <div className="tool-bar-wrapper">
+                <div className="search">
+                      <img src={search}/>
+                      <span>Search</span>
+                </div>
+                <div className="grok-response-container">
+                    <div className="tool-bar-heading">
+                      <h2>Insight</h2>
+                      <div>
+                        {gronkSummary != "" ? 
+                        gronkSummary:
+                        <></>  
+                      }
+                      </div>
+                    </div>
+                </div>
             </div>
           </div>
         </div>
-      </div>
-    </>
-  );
-};
+       </div>
+      </>
+    );
+  }
+  
+  export default Evolutions;
 
-export default Evolutions;
+
+
+// @Author https://www.geeksforgeeks.org/bitonic-sort/
+  function compAndSwap(a, i, j, dir) {
+    if ((a[i] > a[j] && dir === 1) || 
+    (a[i] < a[j] && dir === 0))
+    {
+      // Swapping elements
+      var temp = a[i];
+      a[i] = a[j];
+      a[j] = temp;
+    }
+  }
+
+  /* It recursively sorts a bitonic sequence in ascending
+order, if dir = 1, and in descending order otherwise
+(means dir=0). The sequence to be sorted starts at
+index position low, the parameter cnt is the number
+of elements to be sorted.*/
+  function bitonicMerge(a, low, cnt, dir) {
+    if (cnt > 1) {
+      var k = parseInt(cnt / 2);
+      for (var i = low; i < low + k; i++) 
+      compAndSwap(a, i, i + k, dir);
+      bitonicMerge(a, low, k, dir);
+      bitonicMerge(a, low + k, k, dir);
+    }
+  }
+
+  /* This function first produces a bitonic sequence by
+recursively sorting its two halves in opposite sorting
+orders, and then calls bitonicMerge to make them in
+the same order */
+  function bitonicSort(a, low, cnt, dir) {
+    if (cnt > 1) {
+      var k = parseInt(cnt / 2);
+
+      // sort in ascending order since dir here is 1
+      bitonicSort(a, low, k, 1);
+
+      // sort in descending order since dir here is 0
+      bitonicSort(a, low + k, k, 0);
+
+      // Will merge whole sequence in ascending order
+      // since dir=1.
+      bitonicMerge(a, low, cnt, dir);
+    }
+  }
+
+  /*Caller of bitonicSort for sorting the entire array
+of length N in ASCENDING order */
+  function sort(a, N, up) {
+    bitonicSort(a, 0, N, up);
+  }

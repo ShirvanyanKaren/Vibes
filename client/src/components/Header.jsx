@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import logo from "/assets/x-twitter.svg"
+
 
 
 const Header = () => {
