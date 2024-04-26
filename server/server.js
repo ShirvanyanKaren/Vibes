@@ -3,7 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 var jwt = require('jsonwebtoken');
 const mongoose = require("mongoose");
-const { authMiddleware } = require("./utils/auth");
+const authMiddleware  = require("./utils/auth");
 const path = require("path");
 const axios = require("axios")
 
@@ -26,12 +26,20 @@ console.log("one")
 
 
 app.get("/callback", (req,res)=>{
-  console.log(req.query)
-  // var token = jwt.sign(req.query, process.env.CONSUMER_SECRET)
-  // console.log(token)
-  
-  res.redirect(`http://localhost:8000/user_token?verifier=${req.query.oauth_verifier}`)
+  let username = req.query
+  const token = jwt.sign({username}, process.env.JWT_SECRET, {
+    expiresIn: process.env.EXPIRATION,
+  });
+  res.clearCookie('token')
+  res.cookie('token', token)
+  console.log(token)
+  res.redirect(`http://localhost:3000/evolutions`)
 })
+
+app.get("/", (req, res) => {
+  console.log("hello")
+}
+);
 
 if (process.env.NODE_ENV === "production") {
   app.use("/", express.static(path.join(__dirname, "../client/dist")));

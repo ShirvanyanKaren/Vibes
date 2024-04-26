@@ -5,19 +5,48 @@ import "react-bubble-ui/dist/index.css";
 import BubbleUI from "react-bubble-ui";
 import { json, useSearchParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Cookies from "js-cookie"
 import logo from "/assets/x-logo.svg"
 import axios from 'axios'
-import { askGronk } from "../utils/helpers/functions";
-
-
-
-
-
+import Cookies from "js-cookie";
+import decode from "jwt-decode";
+import { getUserPage, askGronk, dummyData } from "../utils/helpers/functions";
+import ToolTip from "../components/ToolTip";
 
 const Evolutions = (props) => {
   const [evolutions, setEvolutions] = useState({})
   const [evolutionLoading, setEvolutionLoading] = useState(true)
+  const [username, setUsername] = useState("")
+  const [gronkSummary, setSummary] = useState("")
+  const [grokLoading, setGrokLoading] = useState(false)
+  const usingTwitter = false
+
+  useEffect(() => {
+    const token = Cookies.get("token");
+    const username = decode(token).username;
+    setUsername(username)
+  }, []);
+
+  useEffect(() => {
+    const fetchEvolutions = async () => {
+      try {
+        if (usingTwitter) {
+          const response = await getUserPage(username);
+          setEvolutions(response);
+          setEvolutionLoading(false);
+        } else {
+          const response =  dummyData
+          console.log(response)
+          setEvolutions(response)
+          setEvolutionLoading(false)
+        }
+      } catch (error) {
+        console.error(error)
+      }
+
+      }
+      fetchEvolutions()
+      console.log(evolutions)
+  }, [username])
 
 
 
@@ -27,26 +56,6 @@ const Evolutions = (props) => {
   }
   
 
-
-  var colors = [
-    "#FF00FF", // Neon Magenta
-    "#00FFFF", // Neon Cyan
-    "#FFFF00", // Neon Yellow
-    "#00FF00", // Neon Green
-    "#FF0000", // Neon Red
-    "#FFA500", // Neon Orange
-    "#FF1493", // Neon Deep Pink
-    "#00FF7F", // Neon Spring Green
-    "#FFD700", // Neon Gold
-    "#7FFF00", // Neon Chartreuse
-    "#FF4500", // Neon Orange Red
-    "#FF69B4", // Neon Hot Pink
-    "#00CED1", // Neon Dark Turquoise
-    "#FF6347", // Neon Tomato
-    "#40E0D0", // Neon Turquoise
-  ];
-  
-  const [gronkSummary, setSummary] = useState("")
   
   const options = {
 		size: 180,
@@ -64,37 +73,14 @@ const Evolutions = (props) => {
 	}
 
   const handleCategory = async(topic) =>{
-      console.log(topic.name)
-      let response =  await askGronk({keyword: topic.name})
+      setGrokLoading(true)
+      const question ={
+        "keyword": topic,
+      }
+      let response =  await askGronk(question)
       setSummary(response.summary)
+      setGrokLoading(false)
   }
-
-  useEffect(()=>{
-
-      fetch("http://localhost:8000/fetch_tweets",{
-        method:"POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(
-          {
-            "token": Cookies.get('token')
-          }
-          )}
-        )
-        .then(response => response.json())
-        .then(data => {
-
-
-          setEvolutionLoading(false)
-          setEvolutions(data)
-          console.log(data)
-        })
-        .catch(error => console.error(error));
-
-  }, [])
-
-
 
 
     return (
@@ -119,11 +105,11 @@ const Evolutions = (props) => {
               :
               <BubbleUI options={options} className="bubbleUI">
 
-                {evolutions.domains.map((data, i) => {
+                {Object.values(evolutions).map((data, i) => {
                   const bubbleStyle = {
                     cursor: "pointer",
                     fontWeight: (data.proportion * 100) < 5 ? "400" : `${400 + (800 * (data.proportion))}px`,
-                    fontSize: (data.proportion * 100) < 5 ? "20px" : `${20 + (50 * (data.proportion))}px`,
+                    fontSize: (data.proportion * 100) < 5 ? "20px" : `${20 + (100 * (data.proportion))}px`,
                     height: `${(500 * (data.proportion))}px`,
                     width:  `${(500 *(data.proportion))}px`,
                     color:"white",
@@ -131,7 +117,9 @@ const Evolutions = (props) => {
                     border:"none",
                     zIndex:90,
                   };
-                        return <div className="bubble-entry" style={bubbleStyle} onClick={()=>{handleCategory(data.entities[0])}}>{data.name}</div>;
+                        return <div onClick={()=> {handleCategory(data.name)}}>
+                           <ToolTip name={data.name} proportion={data.proportion} onClick={()=>{handleCategory(data.name)}} bubbleStyle={bubbleStyle}/>
+                            </div>
                   })}
               </BubbleUI>
           }
@@ -146,9 +134,16 @@ const Evolutions = (props) => {
                     <div className="tool-bar-heading">
                       <h2>Insight</h2>
                       <div>
-                        {gronkSummary != "" ? 
-                        gronkSummary:
-                        <></>  
+                      {grokLoading ?
+                      <div className="spinner-border mt-2" role="status">
+                        <span className="visually-hidden">Loading...</span>
+                      </div>
+                      : 
+                      <div className="grok-response text-start">  
+
+                        {gronkSummary ? gronkSummary : ""
+                        } 
+                      </div>
                       }
                       </div>
                     </div>
@@ -156,64 +151,17 @@ const Evolutions = (props) => {
             </div>
           </div>
         </div>
-       </div>
+                   
       </>
     );
-  }
+
+
+}
+
+
   
   export default Evolutions;
 
 
 
-// @Author https://www.geeksforgeeks.org/bitonic-sort/
-  function compAndSwap(a, i, j, dir) {
-    if ((a[i] > a[j] && dir === 1) || 
-    (a[i] < a[j] && dir === 0))
-    {
-      // Swapping elements
-      var temp = a[i];
-      a[i] = a[j];
-      a[j] = temp;
-    }
-  }
 
-  /* It recursively sorts a bitonic sequence in ascending
-order, if dir = 1, and in descending order otherwise
-(means dir=0). The sequence to be sorted starts at
-index position low, the parameter cnt is the number
-of elements to be sorted.*/
-  function bitonicMerge(a, low, cnt, dir) {
-    if (cnt > 1) {
-      var k = parseInt(cnt / 2);
-      for (var i = low; i < low + k; i++) 
-      compAndSwap(a, i, i + k, dir);
-      bitonicMerge(a, low, k, dir);
-      bitonicMerge(a, low + k, k, dir);
-    }
-  }
-
-  /* This function first produces a bitonic sequence by
-recursively sorting its two halves in opposite sorting
-orders, and then calls bitonicMerge to make them in
-the same order */
-  function bitonicSort(a, low, cnt, dir) {
-    if (cnt > 1) {
-      var k = parseInt(cnt / 2);
-
-      // sort in ascending order since dir here is 1
-      bitonicSort(a, low, k, 1);
-
-      // sort in descending order since dir here is 0
-      bitonicSort(a, low + k, k, 0);
-
-      // Will merge whole sequence in ascending order
-      // since dir=1.
-      bitonicMerge(a, low, cnt, dir);
-    }
-  }
-
-  /*Caller of bitonicSort for sorting the entire array
-of length N in ASCENDING order */
-  function sort(a, N, up) {
-    bitonicSort(a, 0, N, up);
-  }

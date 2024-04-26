@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+requests
+requests-oauthlib
+tweepy
+pydantic
+xai_sdk
