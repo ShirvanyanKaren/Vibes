@@ -31,8 +31,8 @@ module.exports = {
       return res.status(401).json({ message: "Invalid token" });
     }
   },
-  signToken: function ({ username, email, _id }) {
-    const payload = { username, email, _id };
+  signToken: function ({ username}) {
+    const payload = { username };
     return jwt.sign({ data: payload }, process.env.JWT_SECRET, {
       expiresIn: process.env.EXPIRATION,
     });
