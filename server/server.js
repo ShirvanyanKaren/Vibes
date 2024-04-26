@@ -5,7 +5,8 @@ var jwt = require('jsonwebtoken');
 const mongoose = require("mongoose");
 const authMiddleware  = require("./utils/auth");
 const path = require("path");
-const axios = require("axios")
+const { spawn } = require('child_process');
+
 
 const PORT = process.env.PORT || 8080;
 
@@ -21,9 +22,6 @@ app.use(cors());
 
 
 app.use(router);
-console.log("one")
-
-
 
 app.get("/callback", (req,res)=>{
   let username = req.query
@@ -36,10 +34,6 @@ app.get("/callback", (req,res)=>{
   res.redirect(`http://localhost:3000/evolutions`)
 })
 
-app.get("/", (req, res) => {
-  console.log("hello")
-}
-);
 
 if (process.env.NODE_ENV === "production") {
   app.use("/", express.static(path.join(__dirname, "../client/dist")));
@@ -47,6 +41,30 @@ if (process.env.NODE_ENV === "production") {
     res.sendFile(path.join(__dirname, "../client/dist", "index.html"));
   });
 }
+
+const childProcess1 = spawn("python", ["auth.py"], {cwd: "../oauth"})
+childProcess1.stdout.on('data', (data) => {
+  console.log(data.toString());
+});
+childProcess1.stderr.on('data', (data) => {
+  console.error(data.toString());
+}
+);
+childProcess1.on('exit', (code) => {
+  console.log(`Oauth exited with code ${code}`);
+});
+
+const childProcess2 = spawn("uvicorn", ["organizedbackend:app", "--reload"], {cwd: '../python-backend'})
+childProcess2.stdout.on('data', (data) => {
+  console.log(data.toString());
+});
+childProcess2.stderr.on('data', (data) => {
+  console.error(data.toString());
+}
+);
+childProcess2.on('exit', (code) => {
+  console.log(`py-backend exited with code ${code}`);
+});
 
 mongoose.connect(process.env.MONGODB_URI).then(() => {
   console.log(`starting on port ${PORT}`);
